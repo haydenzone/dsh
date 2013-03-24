@@ -83,6 +83,7 @@ int Semaphores::initSem()
 {
    short * sems = new(nothrow)short[sem_count];
    int rc = semctl( semid, 1, SETALL, sems);
+   delete sems;
 
    if(rc == -1)
    {
