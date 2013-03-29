@@ -99,7 +99,8 @@ void Shrmem::write(string message, int block)
 {
    //TODO Check if block within range
    void * ptr = (void *)((char *)shm_address + block*info.block_size);
-   strcpy((char *)ptr, message.c_str());
+   strncpy((char *)ptr, message.c_str(), info.block_size);
+   ((char *)ptr)[info.block_size-1]= '\0';
 }
 string Shrmem::read(int block)
 {
