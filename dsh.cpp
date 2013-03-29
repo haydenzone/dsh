@@ -560,11 +560,11 @@ void call_function( string command )
          mbox.init(cur_command);
       else if(cur_command[0] == "mboxdel")
          mbox.del(cur_command);
-      else if(cur_command[0] == "mbox.write")
+      else if(cur_command[0] == "mboxwrite")
          mbox.write(cur_command);
-      else if(cur_command[0] == "mbox.read")
+      else if(cur_command[0] == "mboxread")
          mbox.read(cur_command);
-      else if(cur_command[0] == "mbox.copy")
+      else if(cur_command[0] == "mboxcopy")
          mbox.copy(cur_command);
       else if(cur_command[0] == "exit") {}
       else if(cur_command[0] == "cd")
