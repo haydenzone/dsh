@@ -5,8 +5,18 @@ using namespace std;
 
 int main(int argc, char ** argv)
 {
-   Shrmem s(10, 1000);
+
+   int block_num;
+   int block_size;
+
+   cout << "Number of blocks: ";
+   cin >> block_num;
+
+   cout << "Block sizes: ";
+   cin >> block_size;
+   Shrmem s(block_num, block_size);
    int mailbox;
+   
    string input;
    string temp = "";
    do

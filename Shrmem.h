@@ -9,6 +9,11 @@
 
 using namespace std;
 
+struct block_info {
+   int block_size;
+   int block_count;
+};
+
 class Shrmem {
    public:
    Shrmem(int block_count_i, int block_size_i);
@@ -24,6 +29,8 @@ class Shrmem {
    friend string Block::read();
 
    Shrmem::Block operator[](int index);
+   void * getAddress();
+
    private:
    key_t getShmkey();
    key_t shmkey;
@@ -36,6 +43,5 @@ class Shrmem {
    void * shm_address;
    void write(string message, int block);
    string read(int block);
-   int block_size;
-   int block_count;
+   block_info info;
 };
