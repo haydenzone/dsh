@@ -1,13 +1,13 @@
 /***************************************************************************//**
  * @file dsh.cpp
  *
- * @mainpage Program #2
+ * @mainpage Program #3
  *
  * @section course_section Course Information
  *
  * @authors Hayden Waisanen
  *
- * @date January 30, 2013
+ * @date March 29, 2013
  *
  * @par Instructor:
  *         Hayden Waisanen
@@ -36,6 +36,14 @@
  *       * Additional sheel intrinsic functions
  *       * Implement redirection
  *       * Remote shell pipes
+ *
+ *    Program 3 addtions:
+ *       * Mesage passing through shared memory
+ *       * mboxinit
+ *       * mboxread
+ *       * mboxwrite
+ *       * mboxdel
+ *       * mboxcopy
  *
  * @section compile_section Compiling and Usage
  *
@@ -71,6 +79,10 @@
    Feb 18, 2013  Implement all redirection except external pipes
    Feb 19, 2013  Finalize external pipes
    Feb 20, 2013  Finalize commenting doxygen and submission
+   Mar 20, 2013  Implement Shrmem class and test
+   Mar 22, 2013  Implement Semaphores class and test
+   Mar 26, 2013  Implement Mbox class and test
+   Mar 27, 2013  Integrate classes into dsh
    @endverbatim
  *
  ******************************************************************************/
