@@ -23,17 +23,21 @@ public:
    {
       public:
       int sem_i;
+      int row;
+      int cols;
       Semaphores * parent;
-      void wait() { parent->wait(sem_i); };
-      void signal() { parent->signal(sem_i); };
-      void waitfor0() { parent->waitfor0(sem_i); };
-      void setval(int val) { parent->setval(sem_i, val); };
+      void wait() { parent->wait(cols*row+sem_i); };
+      void signal() { parent->signal(cols*row+sem_i); };
+      void waitfor0() { parent->waitfor0(cols*row+sem_i); };
+      void setval(int val) { parent->setval(cols*row+sem_i, val); };
+      Semaphores::Sem operator[](int index){ row = sem_i; sem_i = index; return (*this);};
    };
    friend void Semaphores::Sem::wait();
    friend void Semaphores::Sem::waitfor0();
    Semaphores(int count);
    ~Semaphores();
    Semaphores::Sem operator[](int index);
+   void setCols(int val);
 
 
 private:
@@ -49,6 +53,7 @@ private:
    key_t getSemkey();
    int getSemid();
    int initSem( int val );
+   int cols;
 
    
 };

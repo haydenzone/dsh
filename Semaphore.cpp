@@ -6,6 +6,7 @@ Semaphores::Semaphores(int count)
    //cout << "Semaphore is being created." << endl;
    keypath = "/dev/null";
    keyid = 1;
+   cols = 1; 
    semkey = getSemkey();
    //cout << "Semkey: " << semkey << endl;
    sem_count = count;
@@ -70,8 +71,14 @@ Semaphores::Sem Semaphores::operator[](int index)
 {
    Semaphores::Sem sem;
    sem.sem_i = index;
+   sem.row = 0;
+   sem.cols = cols;
    sem.parent = this;
    return sem;
+}
+void Semaphores::setCols(int val)
+{
+   cols = val;
 }
 
 int Semaphores::getSemid()

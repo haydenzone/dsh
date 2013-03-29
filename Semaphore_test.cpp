@@ -7,7 +7,8 @@ using namespace std;
 enum {RW, READERS, MUTEX};
 int main(int argc, char ** argv)
 {
-   Semaphores s(3);
+   Semaphores s(6);
+   s.setCols(3);
    Shrmem shr(1,sizeof(int)+sizeof(bool));
    string input;
    int & reader_count = (*((int *)shr.getAddress()));
@@ -34,7 +35,16 @@ int main(int argc, char ** argv)
    {
       cout << "R or W? ";
       cin >> input;
-      if(input == "r")
+      if(input == "=")
+      {
+         int col;
+         int row;
+         int val;
+         cout << "row col val: ";
+         cin >> row >> col >> val;
+         s[row][col].setval(val);
+      }
+      else if(input == "r")
       {
          cout << "Acquiring lock" << endl;
          s[MUTEX].wait();
