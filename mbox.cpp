@@ -54,8 +54,10 @@ void Mbox::write(vector<string> params)
 {
    string input = "";
    string temp;
+   Semaphores & s = (*sem);
    int box;
 
+   //Check correct usage
    if(!(params.size() == 2 && isinteger(params[1])))
    {
       cout << "Usage: mboxwrite <boxnumber>" << endl;
@@ -64,6 +66,7 @@ void Mbox::write(vector<string> params)
       return;
    }
 
+   //Input and end on eof flag
    while(!cin.eof())
    {
       getline(cin, temp);
@@ -73,21 +76,32 @@ void Mbox::write(vector<string> params)
    }
    cin.clear();
 
+   //Check if input length is longer than block_size
    if(input.size() > shrmem->get_block_size())
    {
       cout << "Input is too long. Truncating excess." << endl;
    }
+
+   //Convert input number to an int, and check boundaries
    box = stringToInt(params[1]);
    if(box >= shrmem->get_block_count())
    {
       cout << "No mailbox with index " << box << endl;
    }
+
+
+   //Write
+   s[box][RW].wait();
    (*shrmem)[box].write(input.c_str());
+   s[box][RW].signal();
+
 
 }
 void Mbox::read(vector<string> params)
 {
    int box;
+   Semaphores & s = (*sem);
+   Shrmem & shr = (*shrmem);
 
    if(!(params.size() == 2 && isinteger(params[1])))
    {
@@ -100,7 +114,36 @@ void Mbox::read(vector<string> params)
       cout << "No mailbox with index " << box << endl;
       return;
    }
+
+   //Install shared variables
+   int * reader_count = shr.reader_array();
+
+   s[box][MUTEX].wait();
+   reader_count[box]++;
+   if(reader_count[box] == 1)
+   {
+      s[box][MUTEX].signal();
+      cout << "Waiting for RW" << endl;
+      s[box][RW].wait();
+      cout << "Signaling other readers" << endl;
+      s[box][READERS].setval(0);
+      s[box][READERS].setval(1);
+   }
+   else 
+   {
+      cout << "Waiting in readers queue" << endl;
+      s[box][MUTEX].signal();
+      s[box][READERS].waitfor0();
+   }
+
    cout << (*shrmem)[box].read() << endl;
+
+   s[box][MUTEX].wait();
+   reader_count[box]--;
+   cout << "reader_count = " << reader_count;
+   if(reader_count[box] == 0) //Last reader
+      s[box][RW].signal();
+   s[box][MUTEX].signal();
 }
 void Mbox::copy(vector<string> params)
 {

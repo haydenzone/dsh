@@ -9,7 +9,7 @@ Shrmem::Shrmem(int block_count_i , int block_size_i)
 
    info.block_size = block_size_i;
    info.block_count = block_count_i;
-   memsize = info.block_size*info.block_count+sizeof(block_info);
+   memsize = info.block_size*info.block_count+sizeof(block_info)+info.block_count*sizeof(int);
 
    //Add a block at the beginning to store block information
 
@@ -33,7 +33,11 @@ int Shrmem::get_block_count()
 }
 void* Shrmem::getAddress()
 {
-   return (void*)(((char*)shm_address)+sizeof(block_info));
+   return (void*)(((char*)shm_address)+sizeof(block_info)+info.block_count*sizeof(int));
+}
+int * Shrmem::reader_array()
+{
+   return (int *)(((char*)shm_address)+sizeof(block_info));
 }
 Shrmem::~Shrmem()
 {
@@ -69,7 +73,7 @@ int Shrmem::getShmadd()
       info = (*((block_info *)shm_address));
 
       //Recalculate memsize
-      memsize = info.block_size*info.block_count+sizeof(block_info);
+      memsize = info.block_size*info.block_count+sizeof(block_info)+info.block_count*sizeof(int);
 
       //Deleting current attachment
       cout << "Deleting.." << endl;
@@ -98,14 +102,14 @@ int Shrmem::getShmadd()
 void Shrmem::write(string message, int block)
 {
    //TODO Check if block within range
-   void * ptr = (void *)((char *)shm_address + block*info.block_size);
+   void * ptr = (void *)((char *)getAddress() + block*info.block_size);
    strncpy((char *)ptr, message.c_str(), info.block_size);
    ((char *)ptr)[info.block_size-1]= '\0';
 }
 string Shrmem::read(int block)
 {
    //TODO Check if block within range
-   void * ptr = (void *)((char *)shm_address + block*info.block_size);
+   void * ptr = (void *)((char *)getAddress() + block*info.block_size);
    string temp = (char *)ptr;
    return temp;
 }

@@ -32,6 +32,7 @@ class Shrmem {
 
    Shrmem::Block operator[](int index);
    void * getAddress();
+   int * reader_array();
 
    private:
    key_t getShmkey();
