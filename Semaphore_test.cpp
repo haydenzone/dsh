@@ -18,18 +18,18 @@ int main(int argc, char ** argv)
    s[MUTEX].setval(1);
    s[READERS].setval(1);
    s[RW].setval(1);
-   
+
    /*
-   if(argc == 1)
-   {
+      if(argc == 1)
+      {
       cout << "Setting sem to 0" << endl;
       s[0].setval(0);
-   }
-   else
-   {
+      }
+      else
+      {
       cout << "More args" << endl;
       s[0].waitfor0();
-   }*/
+      }*/
 
    do 
    {
@@ -72,10 +72,10 @@ int main(int argc, char ** argv)
          cin >> in;
 
          s[MUTEX].wait();
-            reader_count--;
-            cout << "reader_count = " << reader_count;
-            if(reader_count == 0) //Last reader
-               s[RW].signal();
+         reader_count--;
+         cout << "reader_count = " << reader_count;
+         if(reader_count == 0) //Last reader
+            s[RW].signal();
          s[MUTEX].signal();
 
 

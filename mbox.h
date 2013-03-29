@@ -31,6 +31,8 @@ private:
    Semaphores * sem;
    Shrmem * shrmem;
    bool creator;
+   string lockandread(int box);
+   void lockandwrite(int box, string input);
 };
 /*
 Mailbox initialization

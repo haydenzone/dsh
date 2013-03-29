@@ -38,6 +38,7 @@ class Semaphores {
       ~Semaphores();
       Semaphores::Sem operator[](int index);
       void setCols(int val);
+      void remove();
 
 
    private:

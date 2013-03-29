@@ -4,7 +4,7 @@ Shrmem::Shrmem(int block_count_i , int block_size_i)
 {
    keypath = "/dev/null";
    keyid = 1;
-   cout << "Creating" << endl;
+   //cout << "Creating" << endl;
    shmkey = getShmkey();
 
    info.block_size = block_size_i;
@@ -17,10 +17,10 @@ Shrmem::Shrmem(int block_count_i , int block_size_i)
 
    if(getShmadd() == -1)
    {
-      cout << "Could not attach memory" << endl;
+      //cout << "Could not attach memory" << endl;
       exit(-1);
    }
-   cout << "Shmkey: " << shmkey << endl;
+   //cout << "Shmkey: " << shmkey << endl;
 
 }
 int Shrmem::get_block_size()
@@ -41,9 +41,9 @@ int * Shrmem::reader_array()
 }
 Shrmem::~Shrmem()
 {
-   cout << "Deleting.." << endl;
+   //cout << "Deleting.." << endl;
    int rc = shmdt(shm_address);
-   cout << "RC = " << rc << endl;
+   //cout << "RC = " << rc << endl;
    shmid_ds temp;
    shmid_ds * buf = &temp;
    shmctl(shmid, IPC_RMID, buf);
@@ -52,7 +52,7 @@ key_t Shrmem::getShmkey()
 {
    key_t semkey = ftok(keypath.c_str(), keyid);
    if(semkey == (key_t) -1)
-      cout << "Ftok failed" << endl;
+      //cout << "Ftok failed" << endl;
    return semkey;
 }
 
@@ -66,7 +66,7 @@ int Shrmem::getShmadd()
       shmid = shmget(shmkey, sizeof(block_info), 0666);
       if(shmid == -1)
       {
-         cout << "Unable to attach to shared memory" << endl;
+         //cout << "Unable to attach to shared memory" << endl;
          return shmid;
       }
       shm_address = shmat(shmid, NULL, 0);
@@ -76,9 +76,9 @@ int Shrmem::getShmadd()
       memsize = info.block_size*info.block_count+sizeof(block_info)+info.block_count*sizeof(int);
 
       //Deleting current attachment
-      cout << "Deleting.." << endl;
+      //cout << "Deleting.." << endl;
       int rc = shmdt(shm_address);
-      cout << "RC = " << rc << endl;
+      //cout << "RC = " << rc << endl;
 
       //Reattach correct size
       shmid = shmget(shmkey, memsize, 0666);

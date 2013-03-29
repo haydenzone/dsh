@@ -14,6 +14,7 @@ Mbox::~Mbox()
    if(creator)
    {
       //Delete the semaphores
+      sem->remove();
    }
 }
 
@@ -47,8 +48,14 @@ void Mbox::init(vector<string> params)
 }
 void Mbox::del(vector<string> params)
 {
+   if(creator)
+   {
+      sem->remove();
+   }
    delete sem;
    delete shrmem;
+   sem = NULL;
+   shrmem = NULL;
 }
 void Mbox::write(vector<string> params)
 {
@@ -56,6 +63,12 @@ void Mbox::write(vector<string> params)
    string temp;
    Semaphores & s = (*sem);
    int box;
+
+   if(shrmem == NULL)
+   {
+      cout << "No mailboxes initialized. Call mboxinit." << endl;
+      return;
+   }
 
    //Check correct usage
    if(!(params.size() == 2 && isinteger(params[1])))
@@ -89,19 +102,18 @@ void Mbox::write(vector<string> params)
       cout << "No mailbox with index " << box << endl;
    }
 
-
-   //Write
-   s[box][RW].wait();
-   (*shrmem)[box].write(input.c_str());
-   s[box][RW].signal();
-
+   lockandwrite(box, input);
 
 }
 void Mbox::read(vector<string> params)
 {
    int box;
-   Semaphores & s = (*sem);
-   Shrmem & shr = (*shrmem);
+
+   if(shrmem == NULL)
+   {
+      cout << "No mailboxes initialized. Call mboxinit." << endl;
+      return;
+   }
 
    if(!(params.size() == 2 && isinteger(params[1])))
    {
@@ -114,40 +126,17 @@ void Mbox::read(vector<string> params)
       cout << "No mailbox with index " << box << endl;
       return;
    }
+   cout << lockandread(box) << endl;
 
-   //Install shared variables
-   int * reader_count = shr.reader_array();
-
-   s[box][MUTEX].wait();
-   reader_count[box]++;
-   if(reader_count[box] == 1)
-   {
-      s[box][MUTEX].signal();
-      cout << "Waiting for RW" << endl;
-      s[box][RW].wait();
-      cout << "Signaling other readers" << endl;
-      s[box][READERS].setval(0);
-      s[box][READERS].setval(1);
-   }
-   else 
-   {
-      cout << "Waiting in readers queue" << endl;
-      s[box][MUTEX].signal();
-      s[box][READERS].waitfor0();
-   }
-
-   cout << (*shrmem)[box].read() << endl;
-
-   s[box][MUTEX].wait();
-   reader_count[box]--;
-   cout << "reader_count = " << reader_count;
-   if(reader_count[box] == 0) //Last reader
-      s[box][RW].signal();
-   s[box][MUTEX].signal();
 }
 void Mbox::copy(vector<string> params)
 {
    int box1, box2;
+   if(shrmem == NULL)
+   {
+      cout << "No mailboxes initialized. Call mboxinit." << endl;
+      return;
+   }
    if(!(params.size() == 3 && isinteger(params[1])&& isinteger(params[2])))
    {
       cout << "Usage: mboxcopy <source_boxnumber> <dest_boxnumber>" << endl;
@@ -160,5 +149,56 @@ void Mbox::copy(vector<string> params)
       cout << "Invalid mailbox index" << endl;
       return;
    }
-   (*shrmem)[box2].write((*shrmem)[box1].read());
+   lockandwrite(box2, lockandread(box1));
+}
+
+string Mbox::lockandread(int box)
+{
+   Semaphores & s = (*sem);
+   Shrmem & shr = (*shrmem);
+   string in;
+   //Install shared variables
+   int * reader_count = shr.reader_array();
+
+   s[box][MUTEX].wait();
+   reader_count[box]++;
+   if(reader_count[box] == 1)
+   {
+      s[box][MUTEX].signal();
+      //cout << "Waiting for RW" << endl;
+      s[box][RW].wait();
+      //cout << "Signaling other readers" << endl;
+      s[box][READERS].setval(0);
+      s[box][READERS].setval(1);
+   }
+   else 
+   {
+      cout << "Waiting in readers queue" << endl;
+      s[box][MUTEX].signal();
+      s[box][READERS].waitfor0();
+   }
+
+   in = (*shrmem)[box].read();
+
+   //cout << "Waiting for mutex" << endl;
+   s[box][MUTEX].wait();
+   reader_count[box]--;
+   //cout << "reader_count = " << reader_count;
+   if(reader_count[box] == 0) //Last reader
+      s[box][RW].signal();
+   s[box][MUTEX].signal();
+   return in;
+}
+
+
+void Mbox::lockandwrite(int box, string input)
+{
+   Semaphores & s = (*sem);
+   Shrmem & shr = (*shrmem);
+   //Write
+   s[box][RW].wait();
+   shr[box].write(input.c_str());
+   s[box][RW].signal();
+
+   return;
 }

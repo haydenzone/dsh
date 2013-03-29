@@ -18,54 +18,63 @@ Semaphores::Semaphores(int count)
 
 Semaphores::~Semaphores()
 {
+
+}
+
+void Semaphores::remove()
+{
    //cout << "Destroying" << endl;
    int rc = semctl( semid, 1, IPC_RMID );
    if (rc==-1)
    {
-      //cout << "main: semctl() remove id failed" << endl;
+      cout << "semctl() remove failed" << endl;
    } 
-
 }
 
 key_t Semaphores::getSemkey()
 {
    key_t semkey = ftok(keypath.c_str(), keyid);
    if(semkey == (key_t) -1)
-      //cout << "Ftok failed" << endl;
+      cout << "Ftok failed" << endl;
       return semkey;
 }
 void Semaphores::wait( int sem_i )
 {
    //cout << "Wait for sem_i = " <<  sem_i << endl;
+   //cin.clear();
+   //cin.ignore(100000);
    sembuf ops[1];
    ops[0].sem_num = sem_i;
    ops[0].sem_op = -1;
    ops[0].sem_flg = 0; //Wait for it
    int rv = semop(semid, ops, 1);
-   //if(rv == -1)
-   //cout << strerror(errno) << endl;
+   if(rv == -1)
+      cout << strerror(errno) << endl;
    //cout << "Semops return => " << rv << endl;
 }
 void Semaphores::waitfor0( int sem_i )
 {
-   //cout << "Wait for sem_i = " <<  sem_i << "to become 0" << endl;
+  // cout << "Wait for sem_i = " <<  sem_i << "to become 0" << endl;
    sembuf ops[1];
    ops[0].sem_num = sem_i;
    ops[0].sem_op = 0;
    ops[0].sem_flg = 0; //Wait for it
    int rv = semop(semid, ops, 1);
-   //if(rv == -1)
-   //cout << strerror(errno) << endl;
+   if(rv == -1)
+      cout << strerror(errno) << endl;
    //cout << "Semops return => " << rv << endl;
 }
 void Semaphores::signal( int sem_i )
 {
-   cout << "Signaling for sem_i = " <<  sem_i << endl;
+   //cout << "Signaling for sem_i = " <<  sem_i << endl;
+   //cin.clear();
+   //cin.ignore(100000);
    sembuf ops[1];
    ops[0].sem_num = sem_i;
    ops[0].sem_op = 1;
    ops[0].sem_flg = IPC_NOWAIT; //Wait for it
-   cout << "Semops return => " << semop(semid, ops, 1) << endl;
+   int rv =semop(semid, ops, 1);
+   //cout << "Semops return => " <<  << endl;
 }
 Semaphores::Sem Semaphores::operator[](int index)
 {
@@ -91,7 +100,7 @@ int Semaphores::getSemid()
       semid = semget( semkey, sem_count, 0666 );
       if(semid == -1)
       {
-         //cout << "Completely failed to get semaphore " << semkey << endl;
+         cout << "Completely failed to get semaphore " << semkey << endl;
       }
    }
    return semid;
@@ -103,7 +112,7 @@ void Semaphores::setval(int sem_i, int val)
    int rc = semctl( semid, sem_i, SETVAL,semopts);
    if(rc == -1)
    {
-      //cout << "sem setval failed" << endl;
+      cout << "sem setval failed" << endl;
    }
 }
 int Semaphores::initSem(int val)
@@ -116,7 +125,7 @@ int Semaphores::initSem(int val)
 
    if(rc == -1)
    {
-      //cout << "initSem failed" << endl;
+      cout << "initSem failed" << endl;
    }
 
    return rc;
