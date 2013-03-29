@@ -27,6 +27,8 @@ class Shrmem {
    };
    friend void Block::write(string message);
    friend string Block::read();
+   int get_block_size();
+   int get_block_count();
 
    Shrmem::Block operator[](int index);
    void * getAddress();

@@ -97,6 +97,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include "Reroute.h"
+#include "mbox.h"
 using namespace std;
 
 /*******************************************************************************
@@ -410,6 +411,8 @@ void systat(vector<string> params)
  ******************************************************************************/
 void call_function( string command ) 
 {
+   //Declare static Mbox class to utilize functions
+   static Mbox mbox;
    //Separate user command on spaces
    vector<string> command_array = split(command, ' ');
 
@@ -553,6 +556,16 @@ void call_function( string command )
          systat(cur_command);
       else if(cur_command[0] == "signal")
          send_signal(cur_command);
+      else if(cur_command[0] == "mboxinit")
+         mbox.init(cur_command);
+      else if(cur_command[0] == "mboxdel")
+         mbox.del(cur_command);
+      else if(cur_command[0] == "mbox.write")
+         mbox.write(cur_command);
+      else if(cur_command[0] == "mbox.read")
+         mbox.read(cur_command);
+      else if(cur_command[0] == "mbox.copy")
+         mbox.copy(cur_command);
       else if(cur_command[0] == "exit") {}
       else if(cur_command[0] == "cd")
          changeDir(cur_command);

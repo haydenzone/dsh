@@ -4,7 +4,7 @@ Shrmem::Shrmem(int block_count_i , int block_size_i)
 {
    keypath = "/dev/null";
    keyid = 1;
-   //cout << "Creating" << endl;
+   cout << "Creating" << endl;
    shmkey = getShmkey();
 
    info.block_size = block_size_i;
@@ -17,11 +17,19 @@ Shrmem::Shrmem(int block_count_i , int block_size_i)
 
    if(getShmadd() == -1)
    {
-      //cout << "Could not attach memory" << endl;
+      cout << "Could not attach memory" << endl;
       exit(-1);
    }
-   //cout << "Shmkey: " << shmkey << endl;
+   cout << "Shmkey: " << shmkey << endl;
 
+}
+int Shrmem::get_block_size()
+{
+   return info.block_size;
+}
+int Shrmem::get_block_count()
+{
+   return info.block_count;
 }
 void* Shrmem::getAddress()
 {
@@ -29,9 +37,9 @@ void* Shrmem::getAddress()
 }
 Shrmem::~Shrmem()
 {
-   //cout << "Deleting.." << endl;
+   cout << "Deleting.." << endl;
    int rc = shmdt(shm_address);
-   //cout << "RC = " << rc << endl;
+   cout << "RC = " << rc << endl;
    shmid_ds temp;
    shmid_ds * buf = &temp;
    shmctl(shmid, IPC_RMID, buf);
@@ -40,7 +48,7 @@ key_t Shrmem::getShmkey()
 {
    key_t semkey = ftok(keypath.c_str(), keyid);
    if(semkey == (key_t) -1)
-      //cout << "Ftok failed" << endl;
+      cout << "Ftok failed" << endl;
    return semkey;
 }
 
@@ -49,25 +57,24 @@ int Shrmem::getShmadd()
    shmid = shmget(shmkey, memsize, 0666 | IPC_CREAT | IPC_EXCL);
    if (shmid == -1)
    {
-      printf("memory may have already been created Attempting to attach..\n");
+      //Memory may have already been created, attempt to attach
       //Attach to memory and get block size information
       shmid = shmget(shmkey, sizeof(block_info), 0666);
       if(shmid == -1)
       {
-         //cout << "Unable to attach to shared memory" << endl;
+         cout << "Unable to attach to shared memory" << endl;
          return shmid;
       }
       shm_address = shmat(shmid, NULL, 0);
       info = (*((block_info *)shm_address));
 
       //Recalculate memsize
-      //cout << "Correcting memory size to " << info.block_count << " boxes of " << info.block_size << " bytes each." << endl;
       memsize = info.block_size*info.block_count+sizeof(block_info);
 
       //Deleting current attachment
-      //cout << "Deleting.." << endl;
+      cout << "Deleting.." << endl;
       int rc = shmdt(shm_address);
-      //cout << "RC = " << rc << endl;
+      cout << "RC = " << rc << endl;
 
       //Reattach correct size
       shmid = shmget(shmkey, memsize, 0666);

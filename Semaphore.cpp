@@ -12,7 +12,7 @@ Semaphores::Semaphores(int count)
    sem_count = count;
    semid = getSemid();
    //cout << "Semid: " << semid << endl;
-   int rc = initSem(0); //Change BACK TO 0!!!
+   int rc = initSem(1); //Change BACK TO 0!!!
    //cout << "rc: " << rc << endl;
 }
 
@@ -20,10 +20,10 @@ Semaphores::~Semaphores()
 {
    //cout << "Destroying" << endl;
    int rc = semctl( semid, 1, IPC_RMID );
-    if (rc==-1)
-    {
-       //cout << "main: semctl() remove id failed" << endl;
-       } 
+   if (rc==-1)
+   {
+      //cout << "main: semctl() remove id failed" << endl;
+   } 
 
 }
 
@@ -32,7 +32,7 @@ key_t Semaphores::getSemkey()
    key_t semkey = ftok(keypath.c_str(), keyid);
    if(semkey == (key_t) -1)
       //cout << "Ftok failed" << endl;
-   return semkey;
+      return semkey;
 }
 void Semaphores::wait( int sem_i )
 {
@@ -43,7 +43,7 @@ void Semaphores::wait( int sem_i )
    ops[0].sem_flg = 0; //Wait for it
    int rv = semop(semid, ops, 1);
    //if(rv == -1)
-      //cout << strerror(errno) << endl;
+   //cout << strerror(errno) << endl;
    //cout << "Semops return => " << rv << endl;
 }
 void Semaphores::waitfor0( int sem_i )
@@ -55,7 +55,7 @@ void Semaphores::waitfor0( int sem_i )
    ops[0].sem_flg = 0; //Wait for it
    int rv = semop(semid, ops, 1);
    //if(rv == -1)
-      //cout << strerror(errno) << endl;
+   //cout << strerror(errno) << endl;
    //cout << "Semops return => " << rv << endl;
 }
 void Semaphores::signal( int sem_i )
